@@ -1,18 +1,42 @@
 // ==================== CONFIGURAÇÃO DA API ====================
 const API_URL = 'https://samuel-tech-games-2dj6.onrender.com/api/reviews';
 
-// Lista de Jogos
+// ==================== LISTA DE JOGOS ATUALIZADA ====================
 const games = [
+    // JOGOS CLÁSSICOS (já existentes)
     { id: 1, name: "Arcade Shooter Espacial", url: "https://arcade-shooter-espacial.vercel.app", icon: "fa-rocket", desc: "Nave espacial, tiros e desafios infinitos!" },
     { id: 2, name: "Escape do Labirinto Vivo", url: "https://escape-do-labirinto-vivo.vercel.app", icon: "fa-dragon", desc: "Labirinto que se transforma em tempo real!" },
     { id: 3, name: "Ninja Dojo", url: "https://ninja-dojo-eta.vercel.app", icon: "fa-user-ninja", desc: "Ação platformer com chefões desafiadores!" },
     { id: 4, name: "Desvie dos Obstáculos", url: "https://desvie-dos-obstaculos.vercel.app", icon: "fa-car", desc: "Corrida infinita com obstáculos!" },
     { id: 5, name: "Pulo Infinito", url: "https://pulo-infinito.vercel.app", icon: "fa-bounce", desc: "Pule sem parar e ganhe pontos!" },
     { id: 6, name: "Asteroid 3.0", url: "https://asteroid-3-0.vercel.app", icon: "fa-meteor", desc: "Destrua asteroides no espaço!" },
-    { id: 7, name: "Game Snake 3.0", url: "https://game-snake-3-0.vercel.app", icon: "fa-snake", desc: "O clássico Snake com visual moderno!" }
+    { id: 7, name: "Game Snake 3.0", url: "https://game-snake-3-0.vercel.app", icon: "fa-snake", desc: "O clássico Snake com visual moderno!" },
+    
+    // ========== NOVOS JOGOS ADICIONADOS ==========
+    
+    // JOGOS DE AÇÃO
+    { id: 8, name: "🤠 Cowboy Duel", url: "https://cowboy-duel.vercel.app", icon: "fa-gun", desc: "Duelo no velho oeste! Movimento, mira e tiro rápido!" },
+    { id: 9, name: "👾 Alien Invasion", url: "https://alien-invasion-tau.vercel.app", icon: "fa-skull", desc: "Invasão alienígena! Defenda a Terra com tiros rápidos!" },
+    { id: 10, name: "⚓ Batalha Naval", url: "https://batalha-naval-three.vercel.app", icon: "fa-ship", desc: "Guerra naval contra a IA. Afunde todos os navios!" },
+    { id: 11, name: "🧟 Atualização Zumbi", url: "https://atualiza-ao-zumbi.vercel.app", icon: "fa-zombie", desc: "Sobreviva a hordas de zumbis!" },
+    { id: 12, name: "🧟 Zumbi 2D", url: "https://zumbi-2-d.vercel.app", icon: "fa-biohazard", desc: "Sobrevivência zumbi em 2D com armas" },
+    
+    // JOGOS DE HABILIDADE
+    { id: 13, name: "🦖 Dino Runner", url: "https://dino-runner-three.vercel.app", icon: "fa-dragon", desc: "Corrida infinita estilo dinossauro do Chrome!" },
+    { id: 14, name: "🏃 Maze Chase", url: "https://maze-chase-com-dificuldades.vercel.app", icon: "fa-map", desc: "Labirinto com níveis de dificuldade!" },
+    { id: 15, name: "🐍 Snake Evolution", url: "https://snake-evolution-eta.vercel.app", icon: "fa-snake", desc: "Jogo da cobra evoluído com power-ups!" },
+    
+    // JOGOS DE CORRIDA
+    { id: 16, name: "🚗 Carros 3D", url: "https://carros-3-d.vercel.app", icon: "fa-car", desc: "Corrida 3D com gráficos incríveis!" },
+    { id: 17, name: "🏎️ Car Game", url: "https://car-game-three-lyart.vercel.app", icon: "fa-racing-flag", desc: "Corrida de alta velocidade!" },
+    
+    // JOGOS CLÁSSICOS
+    { id: 18, name: "🐦 Passaro", url: "https://passaro-orpin.vercel.app", icon: "fa-dove", desc: "Flappy Bird estilo com desafios!" },
+    { id: 19, name: "🧩 Labirinto Lógico", url: "https://labirinto-l-gico.vercel.app", icon: "fa-puzzle-piece", desc: "Resolva labirintos desafiadores!" },
+    { id: 20, name: "💥 Asteroid 3.0", url: "https://asteroid-3-0.vercel.app", icon: "fa-meteor", desc: "Destrua asteroides no espaço profundo!" }
 ];
 
-// ==================== FUNÇÕES DA API ====================
+// ==================== FUNÇÕES DA API (mantidas) ====================
 async function getReviews() {
     try {
         const resposta = await fetch(API_URL);
@@ -28,7 +52,6 @@ async function getReviews() {
 
 async function saveReview(review) {
     try {
-        // Garantir que tem id único
         const novoReview = {
             ...review,
             id: Date.now(),
@@ -73,12 +96,14 @@ function renderGames() {
 function renderHighlights() {
     const grid = document.getElementById('highlightsGrid');
     if (!grid) return;
-    const highlights = games.slice(0, 3);
+    // Destaques: jogos mais recentes (ids maiores)
+    const highlights = [...games].sort((a,b) => b.id - a.id).slice(0, 4);
     grid.innerHTML = highlights.map(game => `
         <div class="highlight-card">
             <i class="fas ${game.icon}"></i>
             <h4>${game.name}</h4>
             <p>${game.desc}</p>
+            <a href="${game.url}" target="_blank" class="play-highlight">🔫 Jogar</a>
         </div>
     `).join('');
 }
@@ -195,6 +220,63 @@ function setupContactForm() {
     });
 }
 
+// ==================== FILTRO DE JOGOS ====================
+function setupGameFilter() {
+    const searchInput = document.getElementById('searchGames');
+    const categorySelect = document.getElementById('categoryFilter');
+    
+    if (!searchInput && !categorySelect) return;
+    
+    function filterGames() {
+        const searchTerm = searchInput?.value.toLowerCase() || '';
+        const category = categorySelect?.value || 'all';
+        
+        let filtered = [...games];
+        
+        // Filtro por busca
+        if (searchTerm) {
+            filtered = filtered.filter(game => 
+                game.name.toLowerCase().includes(searchTerm) || 
+                game.desc.toLowerCase().includes(searchTerm)
+            );
+        }
+        
+        // Filtro por categoria
+        if (category !== 'all') {
+            const categoryGames = {
+                'acao': [8, 9, 10, 11, 12],
+                'habilidade': [13, 14, 15],
+                'corrida': [16, 17],
+                'classico': [18, 19, 20, 1, 6, 7]
+            };
+            filtered = filtered.filter(game => categoryGames[category]?.includes(game.id));
+        }
+        
+        const grid = document.getElementById('gamesGrid');
+        if (grid) {
+            grid.innerHTML = filtered.map(game => `
+                <div class="game-card">
+                    <i class="fas ${game.icon}"></i>
+                    <h3>${game.name}</h3>
+                    <p>${game.desc}</p>
+                    <a href="${game.url}" target="_blank" class="play-btn">🎮 Jogar Agora</a>
+                </div>
+            `).join('');
+        }
+    }
+    
+    if (searchInput) searchInput.addEventListener('input', filterGames);
+    if (categorySelect) categorySelect.addEventListener('change', filterGames);
+}
+
+// ==================== CONTADOR DE JOGOS ====================
+function updateGameCounter() {
+    const counterEl = document.getElementById('totalGames');
+    if (counterEl) {
+        counterEl.textContent = games.length;
+    }
+}
+
 // ==================== EFEITO MATRIX ====================
 function createMatrixEffect() {
     if (document.getElementById('matrix-canvas')) return;
@@ -257,12 +339,16 @@ function addWhatsAppButton() {
 
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('🚀 Site iniciado!');
+    console.log('🚀 Samuel Tech Games - Site iniciado!');
+    console.log(`📊 Total de jogos disponíveis: ${games.length}`);
+    
     renderGames();
     renderHighlights();
     renderGameSelect();
     setupStarRating();
     setupContactForm();
+    setupGameFilter();
+    updateGameCounter();
     await renderReviews();
     await loadStats();
     createMatrixEffect();
@@ -276,4 +362,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault();
         window.location.href = 'games.html';
     });
+    
+    // Exibir total de jogos no console
+    console.table(games.map(g => ({ id: g.id, nome: g.name, url: g.url })));
 });
